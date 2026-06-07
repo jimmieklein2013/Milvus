@@ -50,11 +50,8 @@ func main() {
 				}
 				snap.Release()
 
-				// Perform ordered handoff: Add before Remove
-				replica.AddSegment(newSeg)
-				for _, id := range oldIDs {
-					replica.RemoveSegment(id)
-				}
+				// Perform ordered handoff: Atomic replacement to fix race condition
+				replica.ReplaceSegments([]*segments.Segment{newSeg}, oldIDs)
 
 				time.Sleep(10 * time.Microsecond)
 			}
