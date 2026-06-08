@@ -136,3 +136,38 @@ func (r *Replica) GetSegments() []*Segment {
 	}
 	return segments
 }
+
+
+package main
+
+import (
+	"sync"
+)
+
+type QueryNode struct {
+	ReplicaMap *SegmentReplica
+	Compactor   *SegmentCompactor
+}
+
+type SegmentReplica struct {
+	Key string
+	Routing []int
+	State string
+}
+
+type SegmentCompactor struct {
+	Compacted []Segment
+	NewSegments []Segment
+	CurrentSegments int
+	RemovedSegments int
+}
+
+func (q *QueryNode) GetSegment(id string) (Segment, error) {
+	if q.ReplicaMap == nil {
+		return nil, fmt.Errorf("segment not found in replica map")
+	}
+	compacted, ok := q.ReplicaMap[id]
+	if !ok {
+		return nil, fmt.Errorf("segment not found in compacted segments")
+	}
+	return compacted,
